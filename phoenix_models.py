@@ -15,7 +15,8 @@ from scipy.interpolate import interp1d
 from convolution import resample_constant_res, gauss_convolve, get_wv_constant_res
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
+logging.basicConfig()
 
 try:
     base_dir = os.environ['SCRATCH']
@@ -116,14 +117,16 @@ def get_file(filepath, query=True):
     local_filepath = DEFAULT_MODEL_DIR / filepath
     local_filepath.parent.mkdir(parents=True, exist_ok=True)
     if local_filepath.is_file():
-        log.debug(f'File exist: {local_filepath}')
+        log.debug(f'Reading local file: {local_filepath}')
     elif query:
         url_link = URL_ROOT + str(filepath)
         log.info(f'Downloading file: {url_link}')
         download_ftp_file(url_link, local_filepath)
+        log.info(f'File saved at: {local_filepath}')
     else:
         msg = f'Cannot find {local_filepath}.  '
         msg += f'Use `query=True` to download model file.'
+        log.critical(msg)
         raise FileNotFoundError(msg)
 
     if not local_filepath.is_file():
